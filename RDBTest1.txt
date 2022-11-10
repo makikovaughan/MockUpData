@@ -1,0 +1,66 @@
+--#1 does not require the SQL command.
+--#2 First, use SELECT * from both tables and use your knowledge of queries and aggregate functions to get to know the data. For visibility, I made it to just 20 rows to display
+SELECT * 
+FROM users
+LIMIT 20;
+
+SELECT * 
+FROM progress
+LIMIT 20;
+
+--#2 What are the Top 25 schools (.edu domains)?
+SELECT email_domain, count(*) AS number_of_edu_domains
+FROM users
+GROUP BY 1
+HAVING email_domain LIKE "%.edu"
+ORDER BY 2 DESC
+LIMIT 25;
+
+--#2 How many .edu learners are located in New York?
+SELECT email_domain, COUNT(*) AS number_of_learners_in_new_york
+FROM users
+GROUP BY 1
+HAVING city = "New York" AND email_domain LIKE "%.edu"
+ORDER BY 2 DESC;
+
+--#2 The mobile_app column contains either mobile-user or NULL. How many of these Codecademy learners are using the mobile app?
+SELECT COUNT(*) AS number_of_mobile_user
+FROM users
+WHERE mobile_app IS NOT NULL;
+
+--#3 Now, using this function, query for the sign up counts for each hour.
+SELECT strftime('%H', sign_up_at) as hour, COUNT(*) as count_of_sign_up
+FROM users
+GROUP BY 1
+ORDER BY 1;
+
+
+--#4 Join the two tables using JOIN and then see what you can dig out of the data! For visibility, rendered just first 20 rows.
+SELECT *
+FROM users
+JOIN progress
+  ON users.user_id = progress.user_id
+LIMIT 200;
+
+--#4 Do different schools (.edu domains) prefer different courses? Limited to 200 for saving execusion time. Used the count of students taking each course to show the reference of school
+SELECT users.email_domain, COUNT(progress.learn_cpp) AS count_of_learning_cpp, COUNT(progress.learn_sql) AS count_of_learning_sql, COUNT(progress.learn_html) AS count_of_learning_html, COUNT(progress.learn_javascript) AS count_of_learning_javascript, COUNT(progress.learn_java) AS count_of_learning_java
+FROM users
+LEFT JOIN progress
+  ON users.user_id = progress.user_id
+WHERE users.email_domain LIKE "%.edu"
+GROUP BY 1
+LIMIT 200;
+
+--#4 What courses are the New Yorkers students taking?
+SELECT progress.user_id AS new_york_student, progress.learn_cpp, progress.learn_sql, progress.learn_html, progress.learn_javascript, progress.learn_java 
+FROM users
+LEFT JOIN progress
+  ON users.user_id = progress.user_id
+WHERE users.city = "New York";
+
+--#4 What courses are the Chicago students taking?
+SELECT progress.user_id AS chicago_student, progress.learn_cpp, progress.learn_sql, progress.learn_html, progress.learn_javascript, progress.learn_java 
+FROM users
+LEFT JOIN progress
+  ON users.user_id = progress.user_id
+WHERE users.city = "Chicago";
